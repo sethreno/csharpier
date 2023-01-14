@@ -1,7 +1,8 @@
 <Project>
     <PropertyGroup>
-        <CSharpierDllPath>$(MSBuildThisFileDirectory)../tools/csharpier/dotnet-csharpier.dll</CSharpierDllPath>
-        <CSharpierArgs Condition="$(CSharpier_Check)">$(CSharpierArgs) --check</CSharpierArgs>
+        <CSharpier_FrameworkVersion Condition="'$(CSharpier_FrameworkVersion)' == ''">$(TargetFramework)</CSharpier_FrameworkVersion>
+        <CSharpierDllPath>$(MSBuildThisFileDirectory)../tools/csharpier/$(CSharpier_FrameworkVersion)/dotnet-csharpier.dll</CSharpierDllPath>
+        <CSharpierArgs Condition="'$(CSharpier_Check)' == 'true'">$(CSharpierArgs) --check</CSharpierArgs>
     </PropertyGroup>
 
     <!-- Target invokes the copy of csharpier from this package on the current project -->

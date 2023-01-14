@@ -1,15 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <Import Project="../../CSharpier.Build.props"/>
     <PropertyGroup>
-        <!-- 
-            targeting more than one framework leads to occasional build errors
-            and CSharpier.MSBuild just calls csharpier via command line so
-            targeting other frameworks seems unnecessary
-        -->
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <!-- See https://github.com/belav/csharpier/issues/481 and https://github.com/belav/csharpier/issues/773 -->
+        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
         <PackageId>CSharpier.MsBuild</PackageId>
         <DevelopmentDependency>true</DevelopmentDependency>
-        <CSharpierOutputDir>../CSharpier.Cli/bin/$(Configuration)/net6.0</CSharpierOutputDir>
+        <CSharpierOutputDir>../CSharpier.Cli/bin/$(Configuration)/$(TargetFramework)</CSharpierOutputDir>
     </PropertyGroup>
 
     <!--
@@ -18,7 +14,13 @@
         CSharpier is a net6.0 project with <PackAsTool> and this is neither.
     -->
     <Target Name="BuildCSharpier" BeforeTargets="Build">
-        <Exec command="dotnet build -c $(Configuration)" WorkingDirectory="../CSharpier.Cli" />
+      <!-- 
+          we run these commands in parallel with two frameworks 
+          and letting dotnet build do the restore results in a failure with file locks
+          restore by itself retries when a file is locked
+        -->
+      <Exec command="dotnet restore" WorkingDirectory="../CSharpier.Cli" />
+      <Exec command="dotnet build --no-restore -c $(Configuration)" WorkingDirectory="../CSharpier.Cli" />
     </Target>
 
     <ItemGroup>
